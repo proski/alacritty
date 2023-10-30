@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::iter::Skip;
 use std::str::Chars;
 
 use unicode_width::UnicodeWidthChar;
@@ -29,7 +28,7 @@ pub enum ShortenDirection {
 
 /// Iterator that yield shortened version of the text.
 pub struct StrShortener<'a> {
-    chars: Skip<Chars<'a>>,
+    chars: Chars<'a>,
     accumulated_len: usize,
     max_width: usize,
     direction: ShortenDirection,
@@ -51,7 +50,7 @@ impl<'a> StrShortener<'a> {
 
         if direction == ShortenDirection::Right {
             return Self {
-                chars: text.chars().skip(0),
+                chars: text.chars(),
                 accumulated_len: 0,
                 text_action: TextAction::Char,
                 max_width,
@@ -99,7 +98,10 @@ impl<'a> StrShortener<'a> {
             TextAction::Shortener
         };
 
-        let chars = text.chars().skip(skip_chars);
+        let mut chars = text.chars();
+        for _ in 0..skip_chars {
+            chars.next();
+        }
 
         Self { chars, accumulated_len: 0, text_action, max_width, direction, shortener }
     }
